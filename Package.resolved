@@ -1,0 +1,43 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "Nimble",
+        "repositoryURL": "https://github.com/Quick/Nimble",
+        "state": {
+          "branch": null,
+          "revision": "22800b0954c89344bb8c87f8ab93378076716fb7",
+          "version": "7.0.3"
+        }
+      },
+      {
+        "package": "Quick",
+        "repositoryURL": "https://github.com/Quick/Quick",
+        "state": {
+          "branch": null,
+          "revision": "0ff81f2c665b4381f526bd656f8708dd52a9ea2f",
+          "version": "1.2.0"
+        }
+      },
+      {
+        "package": "RxSwift",
+        "repositoryURL": "https://github.com/ReactiveX/RxSwift",
+        "state": {
+          "branch": null,
+          "revision": "12cccb171ad9038251af6883807f0290c1d75a5b",
+          "version": "4.0.0"
+        }
+      },
+      {
+        "package": "ToDo",
+        "repositoryURL": "git@github.com:mitsuse/domain.git",
+        "state": {
+          "branch": null,
+          "revision": "388e9c9c8dd43d1caa1eb8aac48619a21ac14bff",
+          "version": "0.2.1"
+        }
+      }
+    ]
+  },
+  "version": 1
+}
