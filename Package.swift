@@ -22,7 +22,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/ReactiveX/RxSwift.git", .upToNextMinor(from: "4.0.0")),
-        .package(url: "git@github.com:mitsuse/domain.git", .upToNextMinor(from: "0.2.1")),
+        .package(url: "https://github.com/mitsuse/domain.git", .upToNextMinor(from: "0.2.1")),
     ] + testPackages,
     targets: [
         .target(name: "Blueprint", dependencies: ["RxSwift", "Domain"]),
