@@ -20,6 +20,10 @@ workflows:
   push_spec:
     steps:
     - script@1.1.3:
+        title: 'pod repo add'
+        inputs:
+        - content: pod repo add ${NAME_POD_REPO} git@github.com:${NAME_POD_REPO}/pods.git
+    - script@1.1.3:
         title: 'pod repo push'
         inputs:
         - content: pod repo push ${NAME_POD_REPO} ${NAME_POD}.podspec --allow-warnings
