@@ -1,6 +1,11 @@
 ## Unreleased
 
 
+## 0.4.0
+
+- The ID of the current user should be obtained from `Session`.
+
+
 ## 0.3.0
 
 - `Serivce` is residents in a app to do some task for the single purpose.
