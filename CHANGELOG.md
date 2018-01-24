@@ -1,5 +1,8 @@
 ## Unreleased
 
+- Add an in-memory implementation of `Session`.
+- Add an extension to observe the transitions of the entity specified with the current user ID.
+
 
 ## 0.4.0
 
