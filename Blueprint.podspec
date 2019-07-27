@@ -13,6 +13,6 @@ Pod::Spec.new do |spec|
   spec.ios.deployment_target = '9.0'
   spec.source_files = 'Sources/Blueprint/*.swift'
   spec.dependency 'Domain', '~> 0.2.1'
-  spec.dependency 'RxSwift', '~> 4.3'
-  spec.pod_target_xcconfig = { 'SWIFT_VERSION' => '4.1' }
+  spec.dependency 'RxSwift', '~> 5.0'
+  spec.pod_target_xcconfig = { 'SWIFT_VERSION' => '4.2' }
 end

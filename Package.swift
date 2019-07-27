@@ -8,8 +8,8 @@ let testing = ProcessInfo.processInfo.environment["TEST"] == "1"
 let testPackages: [Package.Dependency] =
     testing
         ? [
-            .package(url: "https://github.com/Quick/Quick.git", .upToNextMinor(from: "1.2.0")),
-            .package(url: "https://github.com/Quick/Nimble.git", .upToNextMinor(from: "7.0.2")),
+            .package(url: "https://github.com/Quick/Quick.git", .upToNextMinor(from: "2.1.0")),
+            .package(url: "https://github.com/Quick/Nimble.git", .upToNextMinor(from: "8.0.2")),
         ]
         : []
 
@@ -21,7 +21,7 @@ let package = Package(
         .library(name: "Blueprint", targets: ["Blueprint"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/ReactiveX/RxSwift.git", .upToNextMinor(from: "4.3.0")),
+        .package(url: "https://github.com/ReactiveX/RxSwift.git", .upToNextMinor(from: "5.0.0")),
         .package(url: "https://github.com/mitsuse/domain.git", .upToNextMinor(from: "0.2.1")),
     ] + testPackages,
     targets: [
