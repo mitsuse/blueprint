@@ -2,15 +2,15 @@ import Domain
 import RxSwift
 
 public final class InMemorySession<Id>: Session where Id: Domain.Id {
-    private let userVariable = Variable<Id?>(nil)
+    private let userSubject = BehaviorSubject<Id?>(value: nil)
 
     public init() {
     }
 
-    public var user: Observable<Id?> { return userVariable.asObservable() }
-    public var currentUser: Id? { return userVariable.value }
+    public var user: Observable<Id?> { return userSubject.asObservable() }
+    public var currentUser: Id? { return try! userSubject.value() }
 
     public func update(_ user: Id?) {
-        userVariable.value = user
+        userSubject.onNext(user)
     }
 }

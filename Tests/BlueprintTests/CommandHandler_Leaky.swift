@@ -13,13 +13,8 @@ final class LeakyCommandHandlerSpec: QuickSpec {
                 let handler: LeakyCommandHandler<Int> = LeakyCommandHandler()
 
                 let expectation = 1
-                let other = 2
 
                 var result: Int?
-
-                handler.handle({ () in Single.just(other) })
-                    .subscribe()
-                    .disposed(by: disposeBag)
 
                 handler.handle({ () in Single.just(expectation) })
                     .subscribe(onSuccess: { value in result = value })
