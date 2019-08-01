@@ -6,24 +6,24 @@ public final class LeakyCommandHandler<Result>: CommandHandler {
 
     private let scheduler = SerialDispatchQueueScheduler(internalSerialQueueName: "jp.mitsuse.Blueprint.LeakyCommandHandler")
     private let disposeBag = DisposeBag()
-    private let busyVariable = Variable<Bool>(false)
+    private let busySubject = BehaviorSubject<Bool>(value: false)
     private let requestQueue = PublishSubject<(command: Command, subscribe: Subscribe)>()
 
-    public var isBusy: Observable<Bool> { return busyVariable.asObservable() }
+    public var isBusy: Observable<Bool> { return busySubject.asObservable() }
 
     public init() {
         requestQueue
             .withLatestFrom(isBusy) { request, isBusy in (request, isBusy) }
             .observeOn(scheduler)
             .subscribe(onNext: { [weak self] request, isBusy in
-                guard let scheduler = self?.scheduler, let disposeBag = self?.disposeBag, let busyVariable = self?.busyVariable else { return }
+                guard let scheduler = self?.scheduler, let disposeBag = self?.disposeBag, let busyVariable = self?.busySubject else { return }
                 if isBusy {
                     request.subscribe(.error(CommandHandlerBusy()))
                 } else {
-                    busyVariable.value = true
+                    busyVariable.onNext(true)
                     request.command()
                         .observeOn(scheduler)
-                        .subscribe { [weak busyVariable] event in request.subscribe(event); busyVariable?.value = false }
+                        .subscribe { [weak busyVariable] event in request.subscribe(event); busyVariable?.onNext(false) }
                         .disposed(by: disposeBag)
                 }
             })
