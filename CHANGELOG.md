@@ -1,5 +1,9 @@
 ## Unreleased
 
+## 0.7.0
+
+- Update the version of RxSwift.
+
 
 ## 0.5.0
 
