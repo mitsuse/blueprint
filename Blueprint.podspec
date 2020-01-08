@@ -10,9 +10,9 @@ Pod::Spec.new do |spec|
     :git => 'git@github.com:mitsuse/blueprint.git',
     :tag => "#{spec.version}",
   }
-  spec.ios.deployment_target = '9.0'
+  spec.ios.deployment_target = '10.0'
   spec.source_files = 'Sources/Blueprint/*.swift'
-  spec.dependency 'Domain', '~> 0.2.1'
+  spec.dependency 'Domain', '~> 0.3.0'
   spec.dependency 'RxSwift', '~> 5.0'
   spec.pod_target_xcconfig = { 'SWIFT_VERSION' => '4.2' }
 end
