@@ -3,8 +3,9 @@ import Nimble
 
 @testable import Blueprint
 
-import Domain
+import Dispatch
 
+import Domain
 import RxSwift
 
 final class ModelSpec: QuickSpec {
@@ -75,6 +76,37 @@ final class ModelSpec: QuickSpec {
                 expect(transition?.target).toEventually(equal(entity.id))
                 expect(transition?.entity).toEventually(equal(entity))
                 expect(transition?.entity?.name).toEventually(equal(entity.name))
+            }
+
+            it("should process asynchronous updates sequentially") {
+                let disposeBag = DisposeBag()
+                let persistence = InMemoryPersistence<TestEntity>()
+                let model = Model(persistence: persistence)
+                let id = TestEntity.Id("test")
+
+                var transition: Model<TestEntity>.Transition? = nil
+                model
+                    .transitions
+                    .subscribe(onNext: { transition = $0 })
+                    .disposed(by: disposeBag)
+
+                let expectation = "0123456789"
+                (0..<10).forEach { x in
+                    model
+                        .update(id: id) { entity in
+                            Single.create { observe in
+                                DispatchQueue(label: "\(x)").async {
+                                    let updated = TestEntity(id: id, name: (entity?.name ?? "") + "\(x)")
+                                    observe(.success(updated))
+                                }
+                                return Disposables.create()
+                            }
+                        }
+                        .subscribe()
+                        .disposed(by: disposeBag)
+                }
+
+                expect(transition?.entity?.name).toEventually(equal(expectation))
             }
         }
     }

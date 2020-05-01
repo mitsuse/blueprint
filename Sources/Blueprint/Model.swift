@@ -16,14 +16,16 @@ public final class Model<Entity> where Entity: Domain.Entity {
         self.persistence = AnyPersistence(persistence)
 
         Observable.zip(semaphore, requestQueue)
-            .flatMap { [unowned self] (_, request) in
-                self.persistence.restore(by: request.target).map { entity in
-                    Process(target: request.target, entity: request.update(entity))
-                }
+            .flatMap { [unowned self] (_, request) -> Single<(Entity.Id, Entity?)> in
+                let target = Single.just(request.target)
+                let entity =
+                    self.persistence.restore(by: request.target)
+                        .flatMap(request.update)
+                return Single.zip(target, entity)
             }
-            .flatMap { [unowned self] process in
-                self.persistence.store(process.entity, with: process.target).map { entity in
-                    Transition(target: process.target, entity: entity)
+            .flatMap { [unowned self] target, entity in
+                self.persistence.store(entity, with: target).map { entity in
+                    Transition(target: target, entity: entity)
                 }
             }
             .subscribe(onNext: { [unowned self] transition in self.transitionStream.onNext(transition) })
@@ -44,6 +46,10 @@ public final class Model<Entity> where Entity: Domain.Entity {
     }
 
     public func update(id: Entity.Id, _ block: @escaping (Entity?) -> Entity?) -> Single<Entity?> {
+        update(id: id) { entity in Single.just(block(entity)) }
+    }
+
+    public func update(id: Entity.Id, _ block: @escaping (Entity?) -> Single<Entity?>) -> Single<Entity?> {
         return Single.create { [unowned self] subscribe in
             self.requestQueue.onNext(Request(target: id, update: block))
             self.subscribeQueue.onNext(subscribe)
@@ -71,7 +77,7 @@ public final class Model<Entity> where Entity: Domain.Entity {
 
     private struct Request {
         public let target: Entity.Id
-        public let update: (Entity?) -> Entity?
+        public let update: (Entity?) -> Single<Entity?>
     }
 
     private struct Process {

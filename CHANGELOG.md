@@ -1,5 +1,8 @@
 ## Unreleased
 
+- Support asynchronous updates.
+
+
 ## 0.7.0
 
 - Update the version of RxSwift.
