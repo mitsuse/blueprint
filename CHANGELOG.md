@@ -1,5 +1,8 @@
 ## Unreleased
 
+
+## 0.8.0
+
 - Support asynchronous updates.
 
 
