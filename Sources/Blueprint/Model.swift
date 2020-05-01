@@ -3,6 +3,8 @@ import Domain
 import RxSwift
 
 public final class Model<Entity> where Entity: Domain.Entity {
+    private let disposeBag = DisposeBag()
+
     private let persistence: AnyPersistence<Entity>
 
     private let semaphore = PublishSubject<Void>()
@@ -13,7 +15,7 @@ public final class Model<Entity> where Entity: Domain.Entity {
     public init<Persistence>(persistence: Persistence) where Persistence: Blueprint.Persistence, Persistence.Entity == Entity {
         self.persistence = AnyPersistence(persistence)
 
-        _ = Observable.zip(semaphore, requestQueue)
+        Observable.zip(semaphore, requestQueue)
             .flatMap { [unowned self] (_, request) in
                 self.persistence.restore(by: request.target).map { entity in
                     Process(target: request.target, entity: request.update(entity))
@@ -25,12 +27,14 @@ public final class Model<Entity> where Entity: Domain.Entity {
                 }
             }
             .subscribe(onNext: { [unowned self] transition in self.transitionStream.onNext(transition) })
+            .disposed(by: disposeBag)
 
-        _ = Observable.zip(transitionStream, subscribeQueue)
+        Observable.zip(transitionStream, subscribeQueue)
             .subscribe(onNext: { [unowned self] (transition, subscribe) in
                 subscribe(.success(transition.entity))
                 self.semaphore.onNext(())
             })
+            .disposed(by: disposeBag)
 
         semaphore.onNext(())
     }
