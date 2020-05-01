@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name = 'Blueprint'
-  spec.version = '0.8.0'
+  spec.version = '0.9.0'
   spec.homepage = 'https://github.com/mitsuse/blueprint'
   spec.authors = {
     'Tomoya Kose' => 'tomoya@mitsuse.jp'
