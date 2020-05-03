@@ -21,7 +21,7 @@ let package = Package(
         .library(name: "Blueprint", targets: ["Blueprint"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/ReactiveX/RxSwift.git", .upToNextMinor(from: "5.0.0")),
+        .package(url: "https://github.com/ReactiveX/RxSwift.git", .upToNextMinor(from: "5.1.0")),
         .package(url: "https://github.com/mitsuse/domain.git", .upToNextMinor(from: "0.3.0")),
     ] + testPackages,
     targets: [
