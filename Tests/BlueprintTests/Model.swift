@@ -13,55 +13,55 @@ final class ModelSpec: QuickSpec {
         describe("Model") {
             it("can create a new entity") {
                 let disposeBag = DisposeBag()
-                let persistence = InMemoryPersistence<TestEntity>()
+                let persistence = InMemoryPersistence<TestId, TestProperty>()
                 let model = Model(persistence: persistence)
-                let entity = TestEntity(id: TestEntity.Id("test"), name: "Test")
+                let entity = Entity(id: TestId("test"), property: TestProperty(name: "Test"))
 
-                var current: TestEntity? = nil
+                var current: Entity<TestId, TestProperty> = Entity(id: entity.id, property: nil)
                 model
-                    .update(id: entity.id) { $0 ?? entity }
+                    .update(id: entity.id) { $0 ?? entity.property }
                     .subscribe(onSuccess: { current = $0 })
                     .disposed(by: disposeBag)
                 expect(current).toEventually(equal(entity))
-                expect(current?.name).toEventually(equal(entity.name))
+                expect(current.property).toEventually(equal(entity.property))
 
-                var stored: TestEntity? = nil
+                var stored: Entity<TestId, TestProperty>? = nil
                 persistence
                     .restore(by: entity.id)
                     .subscribe(onSuccess: { stored = $0 })
                     .disposed(by: disposeBag)
                 expect(stored).toEventually(equal(entity))
-                expect(stored?.name).toEventually(equal(entity.name))
+                expect(stored?.property).toEventually(equal(entity.property))
             }
 
             it("should publish transitions to subscribers") {
                 let disposeBag = DisposeBag()
-                let persistence = InMemoryPersistence<TestEntity>()
+                let persistence = InMemoryPersistence<TestId, TestProperty>()
                 let model = Model(persistence: persistence)
-                let entity = TestEntity(id: TestEntity.Id("test"), name: "Test")
+                let entity = Entity(id: TestId("test"), property: TestProperty(name: "Test"))
 
-                var transition: Model<TestEntity>.Transition? = nil
+                var transition: Entity<TestId, TestProperty>? = nil
                 model
                     .transitions
                     .subscribe(onNext: { transition = $0 })
                     .disposed(by: disposeBag)
                 model
-                    .update(id: entity.id) { $0 ?? entity }
+                    .update(id: entity.id) { $0 ?? entity.property }
                     .subscribe()
                     .disposed(by: disposeBag)
-                expect(transition?.target).toEventually(equal(entity.id))
-                expect(transition?.entity).toEventually(equal(entity))
-                expect(transition?.entity?.name).toEventually(equal(entity.name))
+                expect(transition?.id).toEventually(equal(entity.id))
+                expect(transition).toEventually(equal(entity))
+                expect(transition?.property).toEventually(equal(entity.property))
             }
 
             it("should process all received updates") {
                 let disposeBag = DisposeBag()
-                let persistence = InMemoryPersistence<TestEntity>()
+                let persistence = InMemoryPersistence<TestId, TestProperty>()
                 let model = Model(persistence: persistence)
                 let iteration = 10
-                let entity = TestEntity(id: TestEntity.Id("test"), name: String(repeating: ".", count: iteration))
+                let entity = Entity(id: TestId("test"), property: TestProperty(name: String(repeating: ".", count: iteration)))
 
-                var transition: Model<TestEntity>.Transition? = nil
+                var transition: Entity<TestId, TestProperty>? = nil
                 model
                     .transitions
                     .subscribe(onNext: { transition = $0 })
@@ -69,22 +69,22 @@ final class ModelSpec: QuickSpec {
 
                 (0..<(iteration)).forEach { x in
                     model
-                        .update(id: entity.id) { TestEntity(id: entity.id, name: ($0?.name ?? "") + ".") }
+                        .update(id: entity.id) { TestProperty(name: ($0?.name ?? "") + ".") }
                         .subscribe()
                         .disposed(by: disposeBag)
                 }
-                expect(transition?.target).toEventually(equal(entity.id))
-                expect(transition?.entity).toEventually(equal(entity))
-                expect(transition?.entity?.name).toEventually(equal(entity.name))
+                expect(transition?.id).toEventually(equal(entity.id))
+                expect(transition).toEventually(equal(entity))
+                expect(transition?.property).toEventually(equal(entity.property))
             }
 
             it("should process asynchronous updates sequentially") {
                 let disposeBag = DisposeBag()
-                let persistence = InMemoryPersistence<TestEntity>()
+                let persistence = InMemoryPersistence<TestId, TestProperty>()
                 let model = Model(persistence: persistence)
-                let id = TestEntity.Id("test")
+                let id = TestId("test")
 
-                var transition: Model<TestEntity>.Transition? = nil
+                var transition: Entity<TestId, TestProperty>? = nil
                 model
                     .transitions
                     .subscribe(onNext: { transition = $0 })
@@ -93,11 +93,11 @@ final class ModelSpec: QuickSpec {
                 let expectation = "0123456789"
                 (0..<10).forEach { x in
                     model
-                        .update(id: id) { entity in
+                        .update(id: id) { property in
                             Single.create { observe in
                                 DispatchQueue(label: "\(x)").async {
-                                    let updated = TestEntity(id: id, name: (entity?.name ?? "") + "\(x)")
-                                    observe(.success(updated))
+                                    let updated = TestProperty(name: (property?.name ?? "") + "\(x)")
+                                    observe(.success(.some(updated)))
                                 }
                                 return Disposables.create()
                             }
@@ -106,21 +106,20 @@ final class ModelSpec: QuickSpec {
                         .disposed(by: disposeBag)
                 }
 
-                expect(transition?.entity?.name).toEventually(equal(expectation))
+                expect(transition?.property?.name).toEventually(equal(expectation), timeout: .seconds(1))
             }
         }
     }
 
-    struct TestEntity: Domain.Entity {
-        let id: Id
+    struct TestProperty: Equatable {
         let name: String
+    }
 
-        struct Id: Domain.Id, Domain.Box {
-            let value: String
+    struct TestId: Domain.Id {
+        let value: String
 
-            init(_ value: String) {
-                self.value = value
-            }
+        init(_ value: String) {
+            self.value = value
         }
     }
 }
