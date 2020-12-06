@@ -3,12 +3,12 @@ import Domain
 import RxSwift
 
 extension Model {
-    public func read<Session>(with session: Session) -> Observable<Entity?> where Session: Blueprint.Session, Session.Id == Entity.Id {
+    public func read<Session>(with session: Session) -> Observable<Entity<Id, Property>?> where Session: Blueprint.Session, Session.Id == Id {
         return session.user
-            .flatMap { [unowned self] userId -> Observable<Entity?> in
-                let observable: Observable<Entity?>
+            .flatMap { [unowned self] userId -> Observable<Entity<Id, Property>?> in
+                let observable: Observable<Entity<Id, Property>?>
                 switch userId {
-                case let .some(userId): observable = self.read(by: userId)
+                case let .some(userId): observable = self.read(by: userId).map { $0 }
                 case .none: observable = Observable.just(nil)
                 }
                 return observable

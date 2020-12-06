@@ -25,7 +25,7 @@ final class SessionSpec: QuickSpec {
         }
     }
 
-    struct TestId: Domain.Id, Domain.Box {
+    struct TestId: Domain.Id {
         let value: String
 
         init(_ value: String) {

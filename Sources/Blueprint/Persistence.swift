@@ -3,8 +3,9 @@ import Domain
 import RxSwift
 
 public protocol Persistence {
-    associatedtype Entity: Domain.Entity
+    associatedtype Id: Domain.Id
+    associatedtype Property
 
-    func store(_ entity: Entity?, with id: Entity.Id) -> Single<Entity?>
-    func restore(by id: Entity.Id) -> Single<Entity?>
+    func store(_ entity: Entity<Id, Property>) -> Single<Entity<Id, Property>>
+    func restore(by id: Id) -> Single<Entity<Id, Property>>
 }
