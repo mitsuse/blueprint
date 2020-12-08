@@ -10,7 +10,7 @@ public final class Model<Id, Property> where Id: Domain.Id {
     private let semaphore = PublishSubject<Void>()
     private let subscribeQueue = PublishSubject<Subscribe>()
     private let requestQueue = PublishSubject<Request>()
-    private let transitionStream = PublishSubject<Entity<Id, Property>>()
+    private let transitionStream = PublishSubject<Transition<Id, Property>>()
 
     public init<Persistence>(persistence: Persistence) where Persistence: Blueprint.Persistence, Persistence.Id == Id, Persistence.Property == Property {
         self.persistence = AnyPersistence(persistence)
@@ -24,21 +24,39 @@ public final class Model<Id, Property> where Id: Domain.Id {
             .flatMap { [unowned self] entity in
                 self.persistence.store(entity)
             }
-            .subscribe(onNext: { [unowned self] entity in self.transitionStream.onNext(entity) })
+            .subscribe(
+                onNext: { [unowned self] entity in self.transitionStream.onNext(.success(entity)) },
+                onError: { [unowned self] error in self.transitionStream.onNext(.error(error)) }
+            )
             .disposed(by: disposeBag)
 
         Observable.zip(transitionStream, subscribeQueue)
-            .subscribe(onNext: { [unowned self] (entity, subscribe) in
-                subscribe(.success(entity))
-                self.semaphore.onNext(())
-            })
+            .subscribe(
+                onNext: { [unowned self] (transition, subscribe) in
+                    switch transition {
+                    case let .success(entity): subscribe(.success(entity))
+                    case let .error(error): subscribe(.error(error))
+                    }
+                    self.semaphore.onNext(())
+                }
+            )
             .disposed(by: disposeBag)
 
         semaphore.onNext(())
     }
 
     public var transitions: Observable<Entity<Id, Property>> {
-        return transitionStream.asObserver()
+        transitionStream
+            .filter { trantision in
+                switch trantision {
+                case .success: return true
+                case .error: return false
+                }
+            }
+            .map { transition in
+                guard case let .success(entity) = transition else { fatalError() }
+                return entity
+            }
     }
 
     public func update(id: Id, _ block: @escaping (Property?) -> Property?) -> Single<Entity<Id, Property>> {
@@ -69,5 +87,10 @@ public final class Model<Id, Property> where Id: Domain.Id {
     private struct Request {
         public let target: Id
         public let update: (Property?) -> Single<Property?>
+    }
+
+    private enum Transition<Id, Property> where Id: Domain.Id {
+        case success(Entity<Id, Property>)
+        case error(Error)
     }
 }
