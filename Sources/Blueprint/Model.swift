@@ -35,7 +35,7 @@ public final class Model<Id, Property> where Id: Domain.Id {
                 onNext: { [unowned self] (transition, subscribe) in
                     switch transition {
                     case let .success(entity): subscribe(.success(entity))
-                    case let .error(error): subscribe(.error(error))
+                    case let .error(error): subscribe(.failure(error))
                     }
                     self.semaphore.onNext(())
                 }

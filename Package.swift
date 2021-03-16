@@ -9,9 +9,9 @@ let package = Package(
         .library(name: "Blueprint", targets: ["Blueprint"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/ReactiveX/RxSwift.git", .upToNextMinor(from: "5.1.0")),
-        .package(name: "Domain", url: "https://github.com/mitsuse/domain.git", .upToNextMinor(from: "0.4.0")),
-        .package(url: "https://github.com/Quick/Quick.git", .upToNextMinor(from: "3.0.0")),
+        .package(url: "https://github.com/ReactiveX/RxSwift.git", .upToNextMinor(from: "6.1.0")),
+        .package(name: "Domain", url: "https://github.com/mitsuse/domain.git", .upToNextMinor(from: "0.5.0")),
+        .package(url: "https://github.com/Quick/Quick.git", .upToNextMinor(from: "3.1.2")),
         .package(url: "https://github.com/Quick/Nimble.git", .upToNextMinor(from: "9.0.0")),
     ],
     targets: [
