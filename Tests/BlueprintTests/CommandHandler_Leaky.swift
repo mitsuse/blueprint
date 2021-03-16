@@ -33,7 +33,7 @@ final class LeakyCommandHandlerSpec: QuickSpec {
                     handler.isBusy
                         .subscribe(onNext: { isBusy in result = isBusy })
                         .disposed(by: disposeBag)
-                    handler.handle({ () in Single.timer(1, scheduler: scheduler) })
+                    handler.handle({ () in Single.timer(.seconds(1), scheduler: scheduler) })
                         .subscribe()
                         .disposed(by: disposeBag)
                     expect(result).toEventually(beTrue())

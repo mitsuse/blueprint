@@ -14,15 +14,15 @@ public final class LeakyCommandHandler<Result>: CommandHandler {
     public init() {
         requestQueue
             .withLatestFrom(isBusy) { request, isBusy in (request, isBusy) }
-            .observeOn(scheduler)
+            .observe(on: scheduler)
             .subscribe(onNext: { [weak self] request, isBusy in
                 guard let scheduler = self?.scheduler, let disposeBag = self?.disposeBag, let busyVariable = self?.busySubject else { return }
                 if isBusy {
-                    request.subscribe(.error(CommandHandlerBusy()))
+                    request.subscribe(.failure(CommandHandlerBusy()))
                 } else {
                     busyVariable.onNext(true)
                     request.command()
-                        .observeOn(scheduler)
+                        .observe(on: scheduler)
                         .subscribe { [weak busyVariable] event in request.subscribe(event); busyVariable?.onNext(false) }
                         .disposed(by: disposeBag)
                 }
