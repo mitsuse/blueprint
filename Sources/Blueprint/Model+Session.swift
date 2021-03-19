@@ -8,8 +8,8 @@ extension Model {
             .flatMap { [unowned self] userId -> Observable<Entity<Id, Property>?> in
                 let observable: Observable<Entity<Id, Property>?>
                 switch userId {
-                case let .some(userId): observable = self.read(by: userId).map { $0 }
-                case .none: observable = Observable.just(nil)
+                case let .success(.some(userId)):observable = self.read(by: userId).map { $0 }
+                case .success(.none), .failure: observable = Observable.just(nil)
                 }
                 return observable
             }
