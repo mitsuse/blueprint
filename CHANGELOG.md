@@ -1,5 +1,8 @@
 ## Unreleased
 
+
+## 0.12.0
+
 - Session handles errors on authentication/authorization.
 
 ## 0.11.0
