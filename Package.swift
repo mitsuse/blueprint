@@ -10,7 +10,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/ReactiveX/RxSwift.git", .upToNextMinor(from: "6.1.0")),
-        .package(name: "Domain", url: "https://github.com/mitsuse/domain.git", .upToNextMinor(from: "0.5.0")),
+        .package(name: "Domain", url: "https://github.com/mitsuse/domain.git", .upToNextMinor(from: "0.6.0")),
         .package(url: "https://github.com/Quick/Quick.git", .upToNextMinor(from: "3.1.2")),
         .package(url: "https://github.com/Quick/Nimble.git", .upToNextMinor(from: "9.0.0")),
     ],
